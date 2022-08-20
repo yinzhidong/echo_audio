@@ -12,7 +12,7 @@
         <!-- CARD 1 -->
         <div class="bg-gray-900 shadow-lg rounded p-3" v-for="(item, index) in itemList" :key="index">
           <div class="group relative">
-            <img class="w-full md:w-72 block rounded" :src="item.bgUrl" alt="" />
+            <img class="w-full md:w-72 block rounded" :src="item.bgUrl" alt=""/>
             <div
               class="absolute bg-black rounded bg-opacity-0 group-hover:bg-opacity-60 w-full h-full top-0 flex items-center group-hover:opacity-100 transition justify-evenly"
             >
@@ -87,10 +87,12 @@ import { useRoute } from 'vue-router';
 // import store from "../store/index";
 // import { uid } from "uid";
 
+import img1 from '@/assets/images/Tycho_-_Epoch.jpg'
+import img2 from '@/assets/images/Tycho_-_Awake.png'
+import img3 from '@/assets/images/Dive_tycho_album.jpg'
+
 const bgList = [
-  'https://upload.wikimedia.org/wikipedia/en/f/f1/Tycho_-_Epoch.jpg',
-  'https://upload.wikimedia.org/wikipedia/en/c/ca/Tycho_-_Awake.png',
-  'https://upload.wikimedia.org/wikipedia/en/1/11/Dive_tycho_album.jpg'
+  img1,img2,img3
 ];
 
 const getIndex = (n, m) => {
@@ -139,7 +141,7 @@ export default {
 
     // 播放
     const playItem = async index => {
-      console.log(index);
+      // console.log(index);
       // aplayerState.instance.skipForward();
       if (index === aplayerState.instance.list.index) {
         return;

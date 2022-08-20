@@ -12,8 +12,7 @@ import { addListener, launch, stop } from 'devtools-detector';
 // import store from "./store/index";
 
 const listenerConsole = () => {
-  // if (process.env.NODE_ENV === 'production') {
-  if (true) {
+  if (process.env.NODE_ENV === 'production') {
     // 禁用右键
     document.oncontextmenu = new Function('event.returnValue=false');
     // 禁用选择
