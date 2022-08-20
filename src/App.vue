@@ -12,7 +12,8 @@ import { addListener, launch, stop } from 'devtools-detector';
 // import store from "./store/index";
 
 const listenerConsole = () => {
-  if (process.env.NODE_ENV === 'production') {
+  // if (process.env.NODE_ENV === 'production') {
+  if (true) {
     // 禁用右键
     document.oncontextmenu = new Function('event.returnValue=false');
     // 禁用选择
@@ -26,7 +27,7 @@ const listenerConsole = () => {
     };
 
     addListener(status => {
-      console.log('addListener status==', status);
+      // console.log('addListener status==', status);
       if (status) {
         // this.illegalAction('devtools');
         // setTimeout( () => (stop(), console.clear()), 100 );
@@ -34,6 +35,7 @@ const listenerConsole = () => {
         //   debugger;
         // }
         alert(`就是个小站点，抬抬手`);
+        window.location.href = 'about:blank';
         window.close();
       }
     });
