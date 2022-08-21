@@ -12,7 +12,7 @@
         <!-- CARD 1 -->
         <div class="bg-gray-900 shadow-lg rounded p-3" v-for="(item, index) in itemList" :key="index">
           <div class="group relative">
-            <img class="w-full md:w-72 block rounded" :src="item.bgUrl" alt=""/>
+            <img class="w-full md:w-72 block rounded" :src="item.bgUrl" alt="" />
             <div
               class="absolute bg-black rounded bg-opacity-0 group-hover:bg-opacity-60 w-full h-full top-0 flex items-center group-hover:opacity-100 transition justify-evenly"
             >
@@ -81,25 +81,18 @@
 <script>
 import 'aplayer/dist/APlayer.min.css';
 import APlayer from 'aplayer';
-import { ref, reactive, onMounted, onUnmounted, getCurrentInstance } from 'vue';
+import { ref, reactive, onBeforeMount, onMounted, onUnmounted, getCurrentInstance, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
+import { getRibbonRandomItem } from '../utils/index';
 // useRouter
 // import store from "../store/index";
 // import { uid } from "uid";
 
-import img1 from '@/assets/images/Tycho_-_Epoch.jpg'
-import img2 from '@/assets/images/Tycho_-_Awake.png'
-import img3 from '@/assets/images/Dive_tycho_album.jpg'
+import img1 from '@/assets/images/Tycho_-_Epoch.jpg';
+import img2 from '@/assets/images/Tycho_-_Awake.png';
+import img3 from '@/assets/images/Dive_tycho_album.jpg';
 
-const bgList = [
-  img1,img2,img3
-];
-
-const getIndex = (n, m) => {
-  return Math.floor(Math.random() * (m - n)) + n;
-};
-
-const channelIds = ['kyeng', 'ztzc', 'xbradio'];
+const bgList = [img1, img2, img3];
 
 export default {
   name: 'view-workout',
@@ -110,6 +103,7 @@ export default {
 
     // 获取vue的实例
     const { proxy } = getCurrentInstance();
+    const channelIds = proxy.BKAPI.getChannelList().map(it => it.channel);
 
     const aplayerState = reactive({
       instance: null
@@ -128,14 +122,16 @@ export default {
 
     // 获取列表
     const getItemList = async currentId => {
-      let data = await proxy.BKAPI.getList(currentId);
-      if (data && data?.data) {
-        itemList.value = data.data.map(item => {
-          return {
-            ...item,
-            bgUrl: `${bgList[getIndex(0, bgList.length)]}`
-          };
-        });
+      if (!errorMsg.value) {
+        let data = await proxy.BKAPI.getList(currentId);
+        if (data && data?.data) {
+          itemList.value = data.data.map((item, index) => {
+            return {
+              ...item,
+              bgUrl: getRibbonRandomItem(bgList, index)
+            };
+          });
+        }
       }
     };
 
@@ -148,19 +144,36 @@ export default {
       }
       // this.list.switch(this.nextIndex());
       aplayerState.instance.list.switch(index);
-      await aplayerState.instance.play();
+      aplayerState.instance.play();
+
+      // 开启遮罩
+      proxy.$loading.open();
+      
+      setTimeout(() => {
+        aplayerState.instance.playedPromise
+          .then(() => {
+            // 关闭
+            proxy.$loading.close();
+          })
+          .catch(e => {
+            console.log('play error e=', JSON.stringify(e));
+            proxy.$loading.close();
+          });
+      }, 2000);
     };
 
     // 初始化播放器
-    const initAplayer = async currentId => {
-      await getItemList(currentId);
+    const initAplayer = () => {
+      if (itemList.value.length === 0) {
+        return;
+      }
+
       let audioList = itemList.value.map(it => {
         return {
           url: it.audioUrl,
           theme: '#ebd0c2'
         };
       });
-      // console.log('getItemList===', audioList);
 
       aplayerState.instance = new APlayer({
         container: document.getElementById('player'),
@@ -176,10 +189,20 @@ export default {
         listMaxHeight: 90,
         audio: audioList
       });
+
+      aplayerState.instance.on('error', function(e) {
+        console.log('error event', JSON.stringify(e));
+      });
     };
 
-    onMounted(() => {
-      !errorMsg.value && initAplayer(currentId);
+    // onBeforeMount(async () => {
+    // });
+
+    nextTick(() => {});
+
+    onMounted(async () => {
+      await getItemList(currentId);
+      initAplayer();
     });
 
     onUnmounted(() => {

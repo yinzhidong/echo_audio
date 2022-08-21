@@ -1,15 +1,15 @@
 import { createRouter,createWebHashHistory } from "vue-router";
 // createWebHistory
-import List from "../views/List.vue";
+import ChannelList from "../views/ChannelList.vue";
 import Channel from "../views/Channel.vue";
 
 const routes = [
   {
     path: "/",
-    name: "List",
-    component: List,
+    name: "ChannelList",
+    component: ChannelList,
     meta: {
-      title: "List",
+      title: "ChannelList",
       auth: false,
     },
   },
